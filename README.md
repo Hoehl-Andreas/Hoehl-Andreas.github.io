@@ -172,14 +172,38 @@
       try {
         const res = await fetch('measurements.json');
         if (res.ok) {
-           tulips = await res.json();
+           const rawData = await res.json();
+           
+           // Normalize data structure to ensure compatibility
+           tulips = rawData.map(item => ({
+               id: item.id || item.wave_id || 'Unknown',
+               duration: typeof item.duration === 'number' ? item.duration : 0,
+               first_detected_at: typeof item.first_detected_at === 'number' ? item.first_detected_at : (item.start_time || 0),
+               position: {
+                   x: item.position && typeof item.position.x === 'number' ? item.position.x : 0,
+                   y: item.position && typeof item.position.y === 'number' ? item.position.y : 0
+               }
+           }));
+
            render(tulips);
           
           // CRITICAL FIX: Initialize display size so canvas exists even if no video file is uploaded yet
-          // Assuming 720p default aspect ratio if unknown
+          // Heuristic: If we don't have video dimensions, try to infer from data or use a larger default
           if (videoPlayer.videoWidth) {
               videoWidth = videoPlayer.videoWidth;
               videoHeight = videoPlayer.videoHeight;
+          } else {
+              // If data contains coordinates larger than default 640x480, expand the universe
+              const maxX = Math.max(...tulips.map(t => t.position.x), 0);
+              const maxY = Math.max(...tulips.map(t => t.position.y), 0);
+              
+              if (maxX > 640) videoWidth = Math.max(videoWidth, 1280); // Bump to at least 720p width
+              if (maxX > 1280) videoWidth = 1920; // Bump to 1080p width
+              
+              if (maxY > 480) videoHeight = Math.max(videoHeight, 720);
+              if (maxY > 720) videoHeight = 1080;
+              
+              console.log(`Inferred universe size from data: ${videoWidth}x${videoHeight} (Max items: ${maxX},${maxY})`);
           }
           setVideoDisplaySize(videoWidth, videoHeight);
           
