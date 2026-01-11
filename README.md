@@ -128,7 +128,6 @@
       
       // 1. Try to load directly from local wave_database.db file (Client-side / GitHub Pages mode)
       try {
-        // Checking if sql.js script is loaded
         if (typeof initSqlJs === 'function') {
           const SQL = await initSqlJs({
             locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
@@ -179,14 +178,23 @@
           db.close();
           
           render(tulips);
+          
+          // CRITICAL FIX: Initialize display size so canvas exists even if no video file is uploaded yet
+          // Assuming 720p default aspect ratio if unknown
+          if (videoPlayer.videoWidth) {
+              videoWidth = videoPlayer.videoWidth;
+              videoHeight = videoPlayer.videoHeight;
+          }
+          setVideoDisplaySize(videoWidth, videoHeight);
+          
           showStatus('Data loaded from wave_database.db', 'success');
           setTimeout(() => { document.getElementById('processingStatus').style.display = 'none'; }, 2000);
-          return; // Exit if successful, skipping the API call below
+          return; // Exit if successful
         }
       } catch (dbErr) {
         console.log("Could not load local DB file, trying API fallback...", dbErr);
       }
-
+      
       // 2. Fallback: Try API (for backend usage)
       try {
         // Ensure correct scaling before drawing points
@@ -488,118 +496,64 @@ function drawCornerReferenceDots() {
 
 // Draw a permanent blue dot at fixed coordinates
 function drawBlueDot() {
+  // This function previously cleared the canvas via updateCanvasSize()
+  // We removed that call to prevent wiping out our red dots
+  // It is now strictly a placeholder or safe update
   const video = document.getElementById('videoPlayer');
-  // Guard against drawing on a zero-sized canvas before metadata is ready
-  if (!video.offsetWidth || !video.offsetHeight) return;
-  updateCanvasSize();
-  const ctx = canvas.getContext('2d');
-  const videoDisplayWidth = video.offsetWidth;
-  const videoDisplayHeight = video.offsetHeight;
-  // Scale the fixed coordinates from detector space to display space
-  const scaleX = videoDisplayWidth / videoWidth;
-  const scaleY = videoDisplayHeight / videoHeight;
-  // Blue dot removed per request; this function is now a no-op
-
-}
-
-// Draw initial blue dot on load
-updateCanvasSize();
-drawBlueDot();
-
-function updateCanvasSize() {
-    const video = document.getElementById('videoPlayer');
-    canvas.width = video.offsetWidth;
-    canvas.height = video.offsetHeight;
-    // Revert to simple positioning like the old version
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-}
-
-// Ensure the video element and its container match the detector's coordinate space
-function setVideoDisplaySize(w, h) {
-  const video = document.getElementById('videoPlayer');
-  const container = document.getElementById('videoContainer');
-  if (!w || !h) return;
-  // Fill available width within the content area, capped at MAX_DISPLAY_WIDTH
-  const parent = container.parentElement || document.body;
-  const parentWidth = parent.clientWidth || window.innerWidth;
-  const targetW = Math.min(parentWidth, MAX_DISPLAY_WIDTH);
-  const targetH = Math.round(targetW * (h / w));
-  video.style.width = targetW + 'px';
-  video.style.height = targetH + 'px';
-  container.style.width = targetW + 'px';
-  container.style.height = targetH + 'px';
-  updateCanvasSize();
-}
-
-function ensureVideoReady(video) {
-  return new Promise(resolve => {
-    // If no source is set, resolve immediately (nothing to wait for)
-    if (!video.src && !video.currentSrc) {
-        resolve(); 
-        return;
-    }
-    if (video.readyState >= 1 && video.videoWidth && video.videoHeight) {
-      resolve();
-    } else {
-      const onMeta = () => { video.removeEventListener('loadedmetadata', onMeta); resolve(); };
-      video.addEventListener('loadedmetadata', onMeta);
-      // Timeout fallback in case metadata never loads
-      setTimeout(resolve, 2000); 
-    }
-  });
+  if (!video.offsetWidth) return;
+  // No-op to avoid clearing detection markers
 }
 
 async function showPositions(positions) {
-    const video = document.getElementById('videoPlayer');
-    await ensureVideoReady(video);
+        const video = document.getElementById('videoPlayer');
+        await ensureVideoReady(video);
+        
+        // FORCE update dimensions based on current video state
+        if (video.videoWidth) {
+            videoWidth = video.videoWidth;
+            videoHeight = video.videoHeight;
+        }
+        
+        // Ensure canvas size matches video display size
+        const w = video.offsetWidth || 640;
+        const h = video.offsetHeight || 480;
+        canvas.width = w;
+        canvas.height = h;
+        canvas.style.display = 'block';
+        
+        const ctx = canvas.getContext('2d');
+        // Explicitly clear before drawing
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // If we have video dimensions, update our global reference now
-    if (video.videoWidth) {
-        videoWidth = video.videoWidth;
-        videoHeight = video.videoHeight;
+        const videoDisplayWidth = canvas.width;
+        const videoDisplayHeight = canvas.height;
+        
+        // Scale factors: from detector dimensions to displayed canvas dimensions
+        const scaleX = videoDisplayWidth / videoWidth;
+        const scaleY = videoDisplayHeight / videoHeight;
+        
+        console.log(`Drawing ${positions.length} markers. Scale: ${scaleX.toFixed(3)}`);
+        lastShownPositions = positions;
+    
+        positions.forEach(({id, x, y}) => {
+            const scaledX = x * scaleX;
+            const scaledY = y * scaleY;
+            
+            // Draw red dot
+            ctx.beginPath();
+            ctx.arc(scaledX, scaledY, 6, 0, 2 * Math.PI); // Slightly larger
+            ctx.fillStyle = '#ff0000';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'white';
+            ctx.stroke();
+            
+            // Draw ID label
+            ctx.font = 'bold 14px Arial';
+            ctx.fillStyle = '#ff0000';
+            ctx.fillText(id, scaledX + 12, scaledY + 4);
+        });
     }
-    
-    updateCanvasSize();
-    canvas.style.display = 'block';
-    
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Get the actual video display dimensions
-    // If video is not loaded/visible, use canvas dimensions
-    const videoDisplayWidth = video.offsetWidth || canvas.width;
-    const videoDisplayHeight = video.offsetHeight || canvas.height;
-    
-    // Scale factors: from detector dimensions to displayed canvas dimensions
-    const scaleX = videoDisplayWidth / videoWidth;
-    const scaleY = videoDisplayHeight / videoHeight;
-    
-    console.log('=== COORDINATE DEBUGGING ===');
-    console.log(`Detector dimensions: ${videoWidth}x${videoHeight}`);
-    console.log(`Display dimensions: ${videoDisplayWidth}x${videoDisplayHeight}`);
-    console.log(`Scale factors: ${scaleX.toFixed(4)}, ${scaleY.toFixed(4)}`);
-    lastShownPositions = positions;
-
-    // Draw permanent blue dot at fixed coords
-    drawBlueDot();
-
-    positions.forEach(({id, x, y}) => {
-        const scaledX = x * scaleX;
-        const scaledY = y * scaleY;
-        
-        // Draw red dot
-        ctx.beginPath();
-        ctx.arc(scaledX, scaledY, 5, 0, 2 * Math.PI);
-        ctx.fillStyle = 'red';
-        ctx.fill();
-        
-        // Draw ID label
-        ctx.font = '12px Arial';
-        ctx.fillStyle = 'red';
-        ctx.fillText(id, scaledX + 10, scaledY - 5);
-    });
-}
 
 // Clear markers when video changes
 videoInput.addEventListener('change', () => {
