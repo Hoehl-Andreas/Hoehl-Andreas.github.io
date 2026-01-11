@@ -15,9 +15,10 @@
 
     <div class="content">
 
-      <!-- Video upload and detection section -->
+      <!-- Video detection section -->
       <div class="section">
-        <h2 class="section-title">⬆️ Upload your video & detect waves</h2>
+        <h2 class="section-title">🌊 Wave Detection Video</h2>
+        <!-- 
         <div class="controls" id="videoUploadArea">
           <div class="control-group">
             <label for="videoInput">Upload video:</label>
@@ -26,9 +27,10 @@
             <button id="clearVideoBtn" class="btn-secondary">Clear video</button>
           </div>
         </div>
+        -->
         <div id="processingStatus"></div>
         <div id="videoContainer">
-          <video id="videoPlayer" controls preload="metadata"></video>
+          <video id="videoPlayer" controls preload="metadata" src="2025-12-26 08-50-36.mp4"></video>
         </div>
       </div>
 
@@ -81,10 +83,11 @@
     let lastShownPositions = []; // Store last shown positions for re-drawing
 
     // Video upload handlers
-    const videoInput = document.getElementById('videoInput');
+    // const videoInput = document.getElementById('videoInput');
     const videoPlayer = document.getElementById('videoPlayer');
-    const clearVideoBtn = document.getElementById('clearVideoBtn');
+    // const clearVideoBtn = document.getElementById('clearVideoBtn');
 
+    /*
     videoInput.addEventListener('change', (e) => {
       const f = e.target.files && e.target.files[0];
       if (!f) return;
@@ -107,6 +110,7 @@
       videoPlayer.load();
       videoInput.value = "";
     });
+    */
 
     document.getElementById('clearFramesBtn').addEventListener('click', () => {
       canvas.style.display = 'none';
@@ -346,9 +350,10 @@
     });
 
     // Object detection
-    const detectBtn = document.getElementById('detectBtn');
+    // const detectBtn = document.getElementById('detectBtn');
     const processingStatus = document.getElementById('processingStatus');
 
+    /*
     detectBtn.addEventListener('click', async () => {
     const videoFile = videoInput.files[0];
     console.log('Detect button clicked');
@@ -418,6 +423,7 @@
         detectBtn.disabled = false;
     }
 });
+*/
 
 // New function to load detection data from database and display overlay
 async function loadAndDisplayDetections() {
@@ -576,12 +582,14 @@ async function showPositions(positions) {
     }
 
 // Clear markers when video changes
+/*
 videoInput.addEventListener('change', () => {
     updateCanvasSize();
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBlueDot();
 });
+*/
 
 // Update canvas size when video size changes
 window.addEventListener('resize', () => { updateCanvasSize(); drawBlueDot(); });
