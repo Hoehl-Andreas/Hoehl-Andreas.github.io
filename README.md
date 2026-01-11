@@ -5,7 +5,6 @@
   <title>Wave Tracker</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="logo.png">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 </head>
 <body>
   <div class="container">
@@ -169,58 +168,12 @@
     async function loadTulips() {
       showStatus('Loading data...', 'loading');
       
-      // 1. Try to load directly from local wave_database.db file (Client-side / GitHub Pages mode)
+      // 1. Try to load directly from local measurements.json file (Client-side / GitHub Pages mode)
       try {
-        if (typeof initSqlJs === 'function') {
-          const SQL = await initSqlJs({
-            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
-          });
-          
-          const dbData = await fetch('wave_database.db').then(res => {
-            if (!res.ok) throw new Error("Local database file not found");
-            return res.arrayBuffer();
-          });
-
-          const db = new SQL.Database(new Uint8Array(dbData));
-          
-          // Attempt to find the main data table (ignoring system tables)
-          let tableName = 'detections'; // Default guess
-          try {
-             // Try to find a table that looks like it holds our data
-             const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'video_%'");
-             if (tables[0] && tables[0].values.length > 0) {
-                 // Prefer 'detections' if it exists, otherwise take the first available
-                 const names = tables[0].values.flat();
-                 if (names.includes('detections')) {
-                    tableName = 'detections';
-                 } else {
-                    tableName = names[0];
-                 }
-                 console.log(`Found tables: ${names.join(', ')}. Using: ${tableName}`);
-             }
-          } catch(e) { console.log("Using default table name 'detections'"); }
-
-          // Select columns based on typical schema
-          const stmt = db.prepare(`SELECT * FROM ${tableName}`);
-          tulips = [];
-          
-          while (stmt.step()) {
-            const row = stmt.getAsObject();
-            // Map common DB column names to our expected format
-            tulips.push({
-              id: row.id || row.wave_id || row.object_id,
-              duration: row.duration || 0,
-              first_detected_at: row.start_time || row.timestamp || row.first_detected_at || 0,
-              position: {
-                x: row.start_x || row.x || 0,
-                y: row.start_y || row.y || 0
-              }
-            });
-          }
-          stmt.free();
-          db.close();
-          
-          render(tulips);
+        const res = await fetch('measurements.json');
+        if (res.ok) {
+           tulips = await res.json();
+           render(tulips);
           
           // CRITICAL FIX: Initialize display size so canvas exists even if no video file is uploaded yet
           // Assuming 720p default aspect ratio if unknown
@@ -230,12 +183,12 @@
           }
           setVideoDisplaySize(videoWidth, videoHeight);
           
-          showStatus('Data loaded from wave_database.db', 'success');
+          showStatus('Data loaded from measurements.json', 'success');
           setTimeout(() => { document.getElementById('processingStatus').style.display = 'none'; }, 2000);
           return; // Exit if successful
         }
       } catch (dbErr) {
-        console.log("Could not load local DB file, trying API fallback...", dbErr);
+        console.log("Could not load local JSON file, trying API fallback...", dbErr);
       }
       
       // 2. Fallback: Try API (for backend usage)
