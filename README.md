@@ -564,9 +564,9 @@ async function showPositions(positions) {
             ctx.arc(scaledX, scaledY, 6, 0, 2 * Math.PI); // Slightly larger
             ctx.fillStyle = '#ff0000';
             ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'white';
-            ctx.stroke();
+            // ctx.lineWidth = 2;
+            // ctx.strokeStyle = 'white';
+            // ctx.stroke();
             
             // Draw ID label
             ctx.font = 'bold 14px Arial';
