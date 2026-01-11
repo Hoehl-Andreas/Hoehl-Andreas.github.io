@@ -534,11 +534,18 @@ function setVideoDisplaySize(w, h) {
 
 function ensureVideoReady(video) {
   return new Promise(resolve => {
+    // If no source is set, resolve immediately (nothing to wait for)
+    if (!video.src && !video.currentSrc) {
+        resolve(); 
+        return;
+    }
     if (video.readyState >= 1 && video.videoWidth && video.videoHeight) {
       resolve();
     } else {
       const onMeta = () => { video.removeEventListener('loadedmetadata', onMeta); resolve(); };
       video.addEventListener('loadedmetadata', onMeta);
+      // Timeout fallback in case metadata never loads
+      setTimeout(resolve, 2000); 
     }
   });
 }
@@ -546,6 +553,13 @@ function ensureVideoReady(video) {
 async function showPositions(positions) {
     const video = document.getElementById('videoPlayer');
     await ensureVideoReady(video);
+    
+    // If we have video dimensions, update our global reference now
+    if (video.videoWidth) {
+        videoWidth = video.videoWidth;
+        videoHeight = video.videoHeight;
+    }
+    
     updateCanvasSize();
     canvas.style.display = 'block';
     
@@ -553,10 +567,11 @@ async function showPositions(positions) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Get the actual video display dimensions
-    const videoDisplayWidth = video.offsetWidth;
-    const videoDisplayHeight = video.offsetHeight;
+    // If video is not loaded/visible, use canvas dimensions
+    const videoDisplayWidth = video.offsetWidth || canvas.width;
+    const videoDisplayHeight = video.offsetHeight || canvas.height;
     
-    // Scale factors: from detector dimensions (1280px) to displayed canvas dimensions
+    // Scale factors: from detector dimensions to displayed canvas dimensions
     const scaleX = videoDisplayWidth / videoWidth;
     const scaleY = videoDisplayHeight / videoHeight;
     
@@ -571,7 +586,7 @@ async function showPositions(positions) {
 
     positions.forEach(({id, x, y}) => {
         const scaledX = x * scaleX;
-    const scaledY = y * scaleY;
+        const scaledY = y * scaleY;
         
         // Draw red dot
         ctx.beginPath();
@@ -597,6 +612,14 @@ videoInput.addEventListener('change', () => {
 // Update canvas size when video size changes
 window.addEventListener('resize', () => { updateCanvasSize(); drawBlueDot(); });
 videoPlayer.addEventListener('loadedmetadata', () => {
+  // CRITICAL FIX: Update global reference dimensions to match the uploaded video
+  // This ensures the DB coordinates (which match this video) scale correctly to the display
+  if (videoPlayer.videoWidth && videoPlayer.videoHeight) {
+      videoWidth = videoPlayer.videoWidth;
+      videoHeight = videoPlayer.videoHeight;
+      console.log(`Updated reference dimensions from video: ${videoWidth}x${videoHeight}`);
+  }
+
   // Default to the video's intrinsic resolution when metadata is ready
   const w = videoPlayer.videoWidth || videoWidth;
   const h = videoPlayer.videoHeight || videoHeight;
