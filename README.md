@@ -122,6 +122,49 @@
       status.className = type;
     }
 
+    // --- MISSING HELPER FUNCTIONS RESTORED ---
+
+    // Helper: Wait for video metadata so we have valid dimensions
+    function ensureVideoReady(video) {
+        return new Promise(resolve => {
+            if (!video.src && !video.currentSrc) { resolve(); return; }
+            if (video.readyState >= 1 && video.videoWidth) { resolve(); } 
+            else {
+                video.addEventListener('loadedmetadata', () => resolve(), { once: true });
+                // Fallback timeout
+                setTimeout(resolve, 2000);
+            }
+        });
+    }
+
+    // Helper: Update global video dimensions variables
+    function setVideoDisplaySize(w, h) {
+        // We don't force element size here because CSS handles responsiveness,
+        // but we update the global tracker variables used for coordinate scaling
+        if (w && h) {
+            videoWidth = w;
+            videoHeight = h;
+            console.log(`Global universe set to: ${videoWidth}x${videoHeight}`);
+            updateCanvasSize();
+        }
+    }
+
+    // Update canvas size when video size changes
+    function updateCanvasSize() {
+        // ...existing code...
+        const video = document.getElementById('videoPlayer');
+        const w = video.offsetWidth || videoWidth || 640;
+        const h = video.offsetHeight || videoHeight || 480;
+        
+        if (canvas.width !== w || canvas.height !== h) {
+            canvas.width = w;
+            canvas.height = h;
+        }
+    }
+    window.addEventListener('resize', updateCanvasSize);
+
+    // --- END RESTORED FUNCTIONS ---
+
     // Data load and rendering
     async function loadTulips() {
       showStatus('Loading data...', 'loading');
