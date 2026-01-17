@@ -30,7 +30,7 @@
         -->
         <div id="processingStatus"></div>
         <div id="videoContainer">
-          <video id="videoPlayer" controls autoplay muted preload="metadata" src="Short_Caion_2025-12-30.mp4"></video> 
+          <video id="videoPlayer" controls autoplay muted loop preload="metadata" src="Short_Caion_2025-12-30.mp4" width="854" height="480" style="width: 854px; height: 480px;"></video> 
         </div>
       </div>
 
