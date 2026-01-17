@@ -17,7 +17,7 @@
 
       <!-- Video detection section -->
       <div class="section">
-        <h2 class="section-title">🌊 Wave Tracker Demo</h2>
+        <h2 class="section-title">🌊 Wave Tracker Demo1</h2>
         <!-- 
         <div class="controls" id="videoUploadArea">
           <div class="control-group">
@@ -30,7 +30,7 @@
         -->
         <div id="processingStatus"></div>
         <div id="videoContainer">
-          <video id="videoPlayer" controls autoplay muted preload="metadata" src="Short_Caion_2025-12-30.mp4"></video>
+          <video id="videoPlayer" controls autoplay muted preload="metadata" src="Short_Caion_2025-12-30.mp4"></video> 
         </div>
       </div>
 
