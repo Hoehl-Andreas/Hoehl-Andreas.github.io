@@ -11,16 +11,16 @@
     <div class="header">
       <h1><img src="logo.png" alt="Wave Tracker Logo" class="header-logo"> Wave Tracker</h1>
       <p>Track It. Ride It. Own It.</p>
-    </div>
 
-    <div class="content">
-      
       <!-- Tab Navigation -->
       <div class="tab-nav">
          <button class="tab-btn" onclick="openTab(event, 'Home')">Home</button>
          <button class="tab-btn active" onclick="openTab(event, 'Demo')">Demo</button>
       </div>
+    </div>
 
+    <div class="content">
+      
       <div id="Home" class="tab-content">
          <!-- Home Content Empty -->
       </div>
