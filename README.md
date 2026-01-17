@@ -14,8 +14,8 @@
 
       <!-- Tab Navigation -->
       <div class="tab-nav">
-         <button class="tab-btn" onclick="openTab(event, 'Home')">Home</button>
-         <button class="tab-btn active" onclick="openTab(event, 'Demo')">Demo</button>
+         <a href="#" class="tab-link" onclick="openTab(event, 'Home')">Home</a>
+         <a href="#" class="tab-link active" onclick="openTab(event, 'Demo')">Demo</a>
       </div>
     </div>
 
@@ -97,7 +97,7 @@
       }
 
       // Deactivate all tab links
-      tablinks = document.getElementsByClassName("tab-btn");
+      tablinks = document.getElementsByClassName("tab-link");
       for (i = 0; i < tablinks.length; i++) {
         tablinks[i].classList.remove("active");
       }
