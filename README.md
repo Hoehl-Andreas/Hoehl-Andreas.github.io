@@ -174,7 +174,8 @@
       
       // 1. Try to load directly from local measurements.json file (Client-side / GitHub Pages mode)
       try {
-        const res = await fetch('measurements.json');
+        // Add timestamp to prevent caching
+        const res = await fetch('measurements.json?t=' + new Date().getTime());
         if (res.ok) {
            const rawData = await res.json();
            
