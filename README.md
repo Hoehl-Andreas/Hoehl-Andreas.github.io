@@ -14,6 +14,18 @@
     </div>
 
     <div class="content">
+      
+      <!-- Tab Navigation -->
+      <div class="tab-nav">
+         <button class="tab-btn" onclick="openTab(event, 'Home')">Home</button>
+         <button class="tab-btn active" onclick="openTab(event, 'Demo')">Demo</button>
+      </div>
+
+      <div id="Home" class="tab-content">
+         <!-- Home Content Empty -->
+      </div>
+
+      <div id="Demo" class="tab-content active">
 
       <!-- Video detection section -->
       <div class="section">
@@ -70,10 +82,36 @@
           <tbody></tbody>
         </table>
       </div>
+      </div> <!-- End #Demo -->
     </div>
   </div>
 
   <script>
+    function openTab(evt, tabName) {
+      // Hide all tab content
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tab-content");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+        tabcontent[i].classList.remove("active");
+      }
+
+      // Deactivate all tab links
+      tablinks = document.getElementsByClassName("tab-btn");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+      }
+
+      // Show the specific tab and activate the button
+      document.getElementById(tabName).style.display = "block";
+      // ensure we add the active class to the content for any css transitions
+      document.getElementById(tabName).classList.add("active"); 
+
+      if (evt) {
+        evt.currentTarget.className += " active";
+      }
+    }
+
     // Constrain the on-screen size for readability (overlay scales accordingly)
     const MAX_DISPLAY_WIDTH = 1140; // px (container 1200px - content padding)
     let tulips = [];
