@@ -17,7 +17,7 @@
 
       <!-- Video detection section -->
       <div class="section">
-        <h2 class="section-title">🌊 Wave Detection Video</h2>
+        <h2 class="section-title">🌊 Wave Tracker Demo</h2>
         <!-- 
         <div class="controls" id="videoUploadArea">
           <div class="control-group">
