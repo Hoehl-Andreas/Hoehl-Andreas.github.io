@@ -322,35 +322,50 @@ tbody tr:hover {
 /* Tab Navigation (Header Integrated) */
 .tab-nav {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start; /* Left align */
   background-color: transparent;
   padding-top: 20px;
+  /* Ensure it sits at the bottom */
+  margin-bottom: -40px; /* Counteract header padding if needed, or just let it sit */
+  transform: translateY(40px); /* Push it down to the edge */
+}
+
+/* Reset header padding to accommodate the push if we want it *really* at the bottom edge */
+/* Alternatively, just styling the buttons: */
+
+.tab-nav {
+    display: flex;
+    justify-content: flex-start;
+    background-color: transparent;
+    padding-top: 20px;
+    width: 100%;
 }
 
 .tab-btn {
-  background-color: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: transparent;
+  border: none;
+  border-bottom: 3px solid transparent; /* Underline indicator */
   outline: none;
   cursor: pointer;
-  padding: 10px 30px;
+  padding: 10px 20px;
   transition: all 0.3s ease;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0 5px;
-  border-radius: 6px 6px 0 0; /* Tab shape */
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  border-radius: 0;
 }
 
 .tab-btn:hover {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: transparent;
   color: #fff;
 }
 
 .tab-btn.active {
-  background-color: #fff;
-  color: #010f36;
+  background-color: transparent;
+  color: #fff;
   border-color: #fff;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* Tab Content */
