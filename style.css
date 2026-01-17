@@ -325,26 +325,13 @@ tbody tr:hover {
   justify-content: flex-start; /* Left align */
   background-color: transparent;
   padding-top: 20px;
-  /* Ensure it sits at the bottom */
-  margin-bottom: -40px; /* Counteract header padding if needed, or just let it sit */
-  transform: translateY(40px); /* Push it down to the edge */
+  width: 100%;
 }
 
-/* Reset header padding to accommodate the push if we want it *really* at the bottom edge */
-/* Alternatively, just styling the buttons: */
-
-.tab-nav {
-    display: flex;
-    justify-content: flex-start;
-    background-color: transparent;
-    padding-top: 20px;
-    width: 100%;
-}
-
-.tab-btn {
+.tab-link {
   background-color: transparent;
+  text-decoration: none;
   border: none;
-  border-bottom: 3px solid transparent; /* Underline indicator */
   outline: none;
   cursor: pointer;
   padding: 10px 20px;
@@ -353,19 +340,17 @@ tbody tr:hover {
   font-weight: 500;
   color: rgba(255, 255, 255, 0.6);
   margin: 0;
-  border-radius: 0;
 }
 
-.tab-btn:hover {
-  background-color: transparent;
+.tab-link:hover {
   color: #fff;
 }
 
-.tab-btn.active {
-  background-color: transparent;
+.tab-link.active {
   color: #fff;
-  border-color: #fff;
   font-weight: 700;
+  text-decoration: none;
+  border-bottom: none;
 }
 
 /* Tab Content */

@@ -88,6 +88,7 @@
 
   <script>
     function openTab(evt, tabName) {
+      if (evt) evt.preventDefault(); // Prevent default anchor behavior
       // Hide all tab content
       var i, tabcontent, tablinks;
       tabcontent = document.getElementsByClassName("tab-content");
