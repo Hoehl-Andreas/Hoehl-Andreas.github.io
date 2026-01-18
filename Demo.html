@@ -647,6 +647,9 @@ videoPlayer.addEventListener('loadedmetadata', () => {
 
 // Add: initialize processed dims on page load
 document.addEventListener('DOMContentLoaded', async () => {
+  // Automatically load data when page opens
+  await loadTulips();
+
   try {
     const dimsRes = await fetch('/api/video_dims');
     if (dimsRes.ok) {
