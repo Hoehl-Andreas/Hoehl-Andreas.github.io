@@ -34,5 +34,138 @@
 
     </div>
   </div>
+  <script>
+    // Variables
+    let tulips = [];
+    let videoWidth = 640;
+    let videoHeight = 480;
+    
+    // Elements
+    const videoPlayer = document.getElementById('videoPlayer');
+    
+    // Canvas setup
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.display = 'block';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.zIndex = '10';
+    
+    const videoContainer = document.getElementById('videoContainer');
+    if (videoContainer) {
+      videoContainer.style.position = 'relative';
+      videoContainer.appendChild(canvas);
+    }
+    
+    // Helper functionality
+    function ensureVideoReady(video) {
+        return new Promise(resolve => {
+            if (!video.src && !video.currentSrc) { resolve(); return; }
+            if (video.readyState >= 1 && video.videoWidth) { resolve(); } 
+            else {
+                video.addEventListener('loadedmetadata', () => resolve(), { once: true });
+                setTimeout(resolve, 2000);
+            }
+        });
+    }
+
+    function setVideoDisplaySize(w, h) {
+        if (w && h) {
+            videoWidth = w;
+            videoHeight = h;
+            updateCanvasSize();
+        }
+    }
+
+    function updateCanvasSize() {
+        const video = document.getElementById('videoPlayer');
+        if (!video) return;
+        const w = video.offsetWidth || videoWidth || 640;
+        const h = video.offsetHeight || videoHeight || 480;
+        
+        if (canvas.width !== w || canvas.height !== h) {
+            canvas.width = w;
+            canvas.height = h;
+        }
+    }
+    window.addEventListener('resize', () => {
+        updateCanvasSize();
+        if (tulips.length > 0) redrawPositions();
+    });
+
+    // Data Loading
+    async function loadAndShowDetections() {
+      try {
+        // Load data
+        const res = await fetch('measurements.json?t=' + new Date().getTime());
+        if (res.ok) {
+           const rawData = await res.json();
+           tulips = rawData.map(item => ({
+               id: item.id || item.wave_id || 'Unknown',
+               x: item.position && typeof item.position.x === 'number' ? item.position.x : 0,
+               y: item.position && typeof item.position.y === 'number' ? item.position.y : 0
+           }));
+           
+           // Determine universe size
+           if (videoPlayer.videoWidth) {
+              videoWidth = videoPlayer.videoWidth;
+              videoHeight = videoPlayer.videoHeight;
+           } else {
+              const maxX = Math.max(...tulips.map(t => t.x), 0);
+              const maxY = Math.max(...tulips.map(t => t.y), 0);
+              if (maxX > 640) videoWidth = Math.max(videoWidth, 1280);
+              if (maxY > 480) videoHeight = Math.max(videoHeight, 720);
+           }
+           setVideoDisplaySize(videoWidth, videoHeight);
+           
+           // Show dots
+           await redrawPositions();
+        }
+      } catch (e) {
+        console.error("Error loading data", e);
+      }
+    }
+
+    async function redrawPositions() {
+        await ensureVideoReady(videoPlayer);
+        
+        if (videoPlayer.videoWidth) {
+            videoWidth = videoPlayer.videoWidth;
+            videoHeight = videoPlayer.videoHeight;
+        }
+        
+        updateCanvasSize();
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+        const scaleX = canvas.width / videoWidth;
+        const scaleY = canvas.height / videoHeight;
+        
+        tulips.forEach(({id, x, y}) => {
+            const scaledX = x * scaleX;
+            const scaledY = y * scaleY;
+            
+            ctx.beginPath();
+            ctx.arc(scaledX, scaledY, 6, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ff0000';
+            ctx.fill();
+            
+            ctx.font = 'bold 14px Arial';
+            ctx.fillStyle = '#ff0000';
+            ctx.fillText(id, scaledX + 12, scaledY + 4);
+        });
+    }
+
+    // Init
+    videoPlayer.addEventListener('loadedmetadata', () => {
+      const w = videoPlayer.videoWidth || videoWidth;
+      const h = videoPlayer.videoHeight || videoHeight;
+      setVideoDisplaySize(w, h);
+      redrawPositions();
+    });
+
+    document.addEventListener('DOMContentLoaded', loadAndShowDetections);
+  </script>
 </body>
 </html>
