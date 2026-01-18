@@ -26,7 +26,6 @@
       </div>
 
       <div id="Demo" class="tab-content active">
-
       <!-- Video detection section -->
       <div class="section">
         <h2 class="section-title">🌊 Wave Tracker Demo</h2>
