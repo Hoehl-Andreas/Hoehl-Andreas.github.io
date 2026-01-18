@@ -61,14 +61,13 @@
           <button id="loadBtn" class="btn-primary">Load data</button>
           <button id="clearBtn" class="btn-secondary">Clear filter</button>
           <button id="clearFramesBtn" class="btn-danger">Clear frames</button>
-          <button id="clearDbBtn" class="btn-danger" style="background-color: #d32f2f;">Clear Database</button>
           <div id="count"></div>
         </div>
       </div>
 
       <!-- Results table section -->
       <div class="section">
-        <h2 class="section-title">📊 Detection Results</h2>
+        <h2 class="section-title">📊 Detected Waves</h2>
         <table id="tbl">
           <thead>
                 <tr>
