@@ -207,12 +207,14 @@
     async function loadTulips() {
       showStatus('Loading data...', 'loading');
       
-      // 1. Try to load directly from local measurements.json file (Client-side / GitHub Pages mode)
       try {
-        // Add timestamp to prevent caching
+        console.log("Fetching measurements.json...");
         const res = await fetch('measurements.json?t=' + new Date().getTime());
+        console.log("Fetch status:", res.status);
+        
         if (res.ok) {
            const rawData = await res.json();
+           console.log("Data loaded, count:", rawData.length);
            
            // Normalize data structure to ensure compatibility
            tulips = rawData.map(item => ({
@@ -232,10 +234,11 @@
           if (videoPlayer.videoWidth) {
               videoWidth = videoPlayer.videoWidth;
               videoHeight = videoPlayer.videoHeight;
-          } else {
+          } else if (tulips.length > 0) {
               // If data contains coordinates larger than default 640x480, expand the universe
-              const maxX = Math.max(...tulips.map(t => t.position.x), 0);
-              const maxY = Math.max(...tulips.map(t => t.position.y), 0);
+              // Use reduce to avoid stack overflow on large arrays
+              const maxX = tulips.reduce((max, t) => Math.max(max, t.position.x), 0);
+              const maxY = tulips.reduce((max, t) => Math.max(max, t.position.y), 0);
               
               if (maxX > 640) videoWidth = Math.max(videoWidth, 1280); // Bump to at least 720p width
               if (maxX > 1280) videoWidth = 1920; // Bump to 1080p width
@@ -250,39 +253,12 @@
           showStatus('Data loaded from measurements.json', 'success');
           setTimeout(() => { document.getElementById('processingStatus').style.display = 'none'; }, 2000);
           return; // Exit if successful
+        } else {
+            throw new Error(`Failed to load measurements.json (Status: ${res.status})`);
         }
       } catch (dbErr) {
-        console.log("Could not load local JSON file, trying API fallback...", dbErr);
-      }
-      
-      // 2. Fallback: Try API (for backend usage)
-      try {
-        // Ensure correct scaling before drawing points
-        try {
-          const dimsRes = await fetch('/api/video_dims');
-          if (dimsRes.ok) {
-            const dims = await dimsRes.json();
-            if (dims && dims.processed_width && dims.processed_height) {
-              videoWidth = dims.processed_width;
-              videoHeight = dims.processed_height;
-              setVideoDisplaySize(videoWidth, videoHeight);
-              console.log(`Using DB processed dims: ${videoWidth}x${videoHeight}`);
-            }
-          }
-        } catch (e) {
-          console.warn('Failed to load processed dimensions', e);
-        }
-
-        const res = await fetch("/api/tulips");
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        tulips = await res.json();
-        render(tulips);
-        showStatus('Data loaded successfully', 'success');
-        setTimeout(() => {
-          document.getElementById('processingStatus').style.display = 'none';
-        }, 3000);
-      } catch (err) {
-        showStatus('Error loading data: ' + err.message, 'error');
+        console.error("Could not load local JSON file", dbErr);
+        showStatus('Error loading data: ' + dbErr.message, 'error');
       }
     }
 
