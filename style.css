@@ -23,7 +23,7 @@ body {
 .header {
   background: linear-gradient(135deg, #072e9b 0%, #010f36 100%);
   color: white;
-  padding: 20px 40px 0 20px; /* Remove bottom padding so tabs sit flush */
+  padding: 40px 40px 0 40px; /* Remove bottom padding so tabs sit flush */
   text-align: center;
 }
 
