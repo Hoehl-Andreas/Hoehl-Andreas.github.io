@@ -118,19 +118,19 @@
     let lastShownPositions = []; // Store last shown positions for re-drawing
 
     // Add canvas overlay for showing positions
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'absolute';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.display = 'block';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.zIndex = '10';
+    const overlayCanvas = document.createElement('canvas');
+    overlayCanvas.style.position = 'absolute';
+    overlayCanvas.style.pointerEvents = 'none';
+    overlayCanvas.style.display = 'block';
+    overlayCanvas.style.top = '0';
+    overlayCanvas.style.left = '0';
+    overlayCanvas.style.zIndex = '10';
     
     // Ensure the overlay stacks correctly above the video
     const videoContainerEl = document.getElementById('videoContainer');
     if (videoContainerEl) {
       videoContainerEl.style.position = 'relative';
-      videoContainerEl.appendChild(canvas);
+      videoContainerEl.appendChild(overlayCanvas);
     }
 
     // Video upload handlers
@@ -164,9 +164,9 @@
     */
 
     document.getElementById('clearFramesBtn').addEventListener('click', () => {
-      canvas.style.display = 'none';
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      overlayCanvas.style.display = 'none';
+      const ctx = overlayCanvas.getContext('2d');
+      ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     });
 
     // Status message helper
@@ -210,9 +210,9 @@
         const w = video.offsetWidth || videoWidth || 640;
         const h = video.offsetHeight || videoHeight || 480;
         
-        if (canvas.width !== w || canvas.height !== h) {
-            canvas.width = w;
-            canvas.height = h;
+        if (overlayCanvas.width !== w || overlayCanvas.height !== h) {
+            overlayCanvas.width = w;
+            overlayCanvas.height = h;
         }
     }
     window.addEventListener('resize', updateCanvasSize);
@@ -266,6 +266,13 @@
           }
           setVideoDisplaySize(videoWidth, videoHeight);
           
+          // Show all loaded points on video
+          showPositions(tulips.map(t => ({
+             id: t.id,
+             x: t.position.x,
+             y: t.position.y
+          })));
+
           showStatus('Data loaded from measurements.json', 'success');
           setTimeout(() => { document.getElementById('processingStatus').style.display = 'none'; }, 2000);
           return; // Exit if successful
@@ -500,7 +507,7 @@ function drawCornerReferenceDots() {
   const video = document.getElementById('videoPlayer');
   if (!video.offsetWidth || !video.offsetHeight) return;
 
-  const ctx = canvas.getContext('2d');
+  const ctx = overlayCanvas.getContext('2d');
   const videoDisplayWidth = video.offsetWidth;
   const videoDisplayHeight = video.offsetHeight;
 
@@ -559,16 +566,16 @@ async function showPositions(positions) {
         // Ensure canvas size matches video display size
         const w = video.offsetWidth || 640;
         const h = video.offsetHeight || 480;
-        canvas.width = w;
-        canvas.height = h;
-        canvas.style.display = 'block';
+        overlayCanvas.width = w;
+        overlayCanvas.height = h;
+        overlayCanvas.style.display = 'block';
         
-        const ctx = canvas.getContext('2d');
+        const ctx = overlayCanvas.getContext('2d');
         // Explicitly clear before drawing
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     
-        const videoDisplayWidth = canvas.width;
-        const videoDisplayHeight = canvas.height;
+        const videoDisplayWidth = overlayCanvas.width;
+        const videoDisplayHeight = overlayCanvas.height;
         
         // Scale factors: from detector dimensions to displayed canvas dimensions
         const scaleX = videoDisplayWidth / videoWidth;
