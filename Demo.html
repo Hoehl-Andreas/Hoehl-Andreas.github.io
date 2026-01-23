@@ -270,13 +270,7 @@
           }
           setVideoDisplaySize(videoWidth, videoHeight);
           
-          // Show all loaded points on video
-          showPositions(tulips.map(t => ({
-             id: t.id,
-             x: t.position.x,
-             y: t.position.y
-          })));
-
+          
           showStatus('Data loaded from measurements.json', 'success');
           setTimeout(() => { document.getElementById('processingStatus').style.display = 'none'; }, 2000);
           return; // Exit if successful
