@@ -117,6 +117,22 @@
     let videoHeight = 480;  // Default, will be updated from detector
     let lastShownPositions = []; // Store last shown positions for re-drawing
 
+    // Add canvas overlay for showing positions
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.display = 'block';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.zIndex = '10';
+    
+    // Ensure the overlay stacks correctly above the video
+    const videoContainerEl = document.getElementById('videoContainer');
+    if (videoContainerEl) {
+      videoContainerEl.style.position = 'relative';
+      videoContainerEl.appendChild(canvas);
+    }
+
     // Video upload handlers
     // const videoInput = document.getElementById('videoInput');
     const videoPlayer = document.getElementById('videoPlayer');
@@ -476,20 +492,8 @@ async function loadAndDisplayDetections() {
   }
 }
 
-// Add canvas overlay for showing positions
-const canvas = document.createElement('canvas');
-canvas.style.position = 'absolute';
-canvas.style.pointerEvents = 'none';
-canvas.style.display = 'block';
-canvas.style.top = '0';
-canvas.style.left = '0';
-canvas.style.zIndex = '10';
-// Ensure the overlay stacks correctly above the video
-const videoContainerEl = document.getElementById('videoContainer');
-if (videoContainerEl) {
-  videoContainerEl.style.position = 'relative';
-}
-document.getElementById('videoContainer').appendChild(canvas);
+// Canvas setup moved to top initialization
+
 
 // Add green reference dots in top-left and bottom-right corners
 function drawCornerReferenceDots() {
