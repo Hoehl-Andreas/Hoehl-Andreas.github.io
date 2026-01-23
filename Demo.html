@@ -39,7 +39,7 @@
         -->
         <div id="processingStatus"></div>
         <div id="videoContainer">
-          <video id="videoPlayer" controls autoplay muted loop preload="metadata" src="Short_Caion_2025-12-30.mp4" width="854" height="480" style="width: 854px; height: 480px;"></video> 
+          <video id="videoPlayer" controls autoplay muted loop preload="metadata" src="Short_Caion_2025-12-30.mp4" style="width: 100%; height: auto; display: block;"></video> 
         </div>
       </div>
 
@@ -213,6 +213,10 @@
         if (overlayCanvas.width !== w || overlayCanvas.height !== h) {
             overlayCanvas.width = w;
             overlayCanvas.height = h;
+            // Redraw positions if specific ones were active
+            if (lastShownPositions && lastShownPositions.length > 0) {
+              showPositions(lastShownPositions);
+            }
         }
     }
     window.addEventListener('resize', updateCanvasSize);
@@ -615,7 +619,7 @@ videoInput.addEventListener('change', () => {
 */
 
 // Update canvas size when video size changes
-window.addEventListener('resize', () => { updateCanvasSize(); drawBlueDot(); });
+window.addEventListener('resize', () => { updateCanvasSize(); });
 videoPlayer.addEventListener('loadedmetadata', () => {
   // CRITICAL FIX: Update global reference dimensions to match the uploaded video
   // This ensures the DB coordinates (which match this video) scale correctly to the display
