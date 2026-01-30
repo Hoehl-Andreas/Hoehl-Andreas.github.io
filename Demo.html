@@ -287,21 +287,29 @@
 
     function render(list) {
       const tbody = document.querySelector("#tbl tbody");
-      tbody.innerHTML = "";
-      for (const t of list) {
-        const tr = document.createElement("tr");
-        const firstTime = formatTimeHMS(t.first_detected_at);
-        tr.innerHTML = `
-            <td>${escapeHtml(t.id)}</td>
-            <td>${t.duration.toFixed(2)}</td>
-            <td>${firstTime}</td>
-            <td>(${t.position.x}, ${t.position.y})</td>
-            <td><button class="btn-secondary" onclick="showPositions([{id: '${escapeHtml(t.id)}', x: ${t.position.x}, y: ${t.position.y}}])" style="padding: 6px 12px; font-size: 0.9em;">Show</button></td>
-        `;
-        tbody.appendChild(tr);
-      }
+      if (!tbody) return;
       
-      // Remove existing "Show All Filtered" button if present
+      let html = "";
+      for (const t of list) {
+        const firstTime = formatTimeHMS(t.first_detected_at);
+        const duration = typeof t.duration === 'number' ? t.duration.toFixed(2) : '0.00';
+        const posX = t.position ? t.position.x : 0;
+        const posY = t.position ? t.position.y : 0;
+        const safeId = escapeHtml(t.id);
+        
+        html += `
+            <tr>
+              <td>${safeId}</td>
+              <td>${duration}</td>
+              <td>${firstTime}</td>
+              <td>(${posX}, ${posY})</td>
+              <td><button class="btn-secondary" onclick="showPositions([{id: '${safeId}', x: ${posX}, y: ${posY}}])" style="padding: 6px 12px; font-size: 0.9em;">Show</button></td>
+            </tr>
+        `;
+      }
+      tbody.innerHTML = html;
+      
+      // Remove existing "Show All Filtereds" button if present
       const existingBtn = document.getElementById("showAllFilteredBtn");
       if (existingBtn) {
           existingBtn.remove();
@@ -318,15 +326,17 @@
           showAllBtn.onclick = () => showPositions(
               list.map(t => ({
                   id: t.id,
-                  x: t.position.x,
-                  y: t.position.y
+                  x: t.position?.x || 0,
+                  y: t.position?.y || 0
               }))
           );
           document.getElementById("filterArea").prepend(showAllBtn);
       }
       
-      document.getElementById("count").textContent = 
-          `Showing ${list.length} of ${tulips.length} results`;
+      const countEl = document.getElementById("count");
+      if (countEl) {
+        countEl.textContent = `Showing ${list.length} of ${tulips.length} results`;
+      }
     }
 
     function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
@@ -620,6 +630,9 @@ videoPlayer.addEventListener('loadedmetadata', () => {
 
 // Add: initialize processed dims on page load
 document.addEventListener('DOMContentLoaded', async () => {
+  // Start loading wave data immediately
+  loadTulips();
+
   // Wait for video to be ready first
   const video = document.getElementById('videoPlayer');
   
@@ -644,8 +657,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Autoplay was blocked, user needs to click play
   }
   
-  showStatus('Video loaded, now loading wave data...', 'loading');
+  showStatus('Video loaded and wave data rendering...', 'loading');
   
-  // Now load the measurement data after video is ready
-  await loadTulips();
+  // Ensure scaling is set correctly after video is ready
+  setVideoDisplaySize(videoWidth, videoHeight);
 });
