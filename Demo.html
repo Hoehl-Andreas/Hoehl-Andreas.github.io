@@ -628,21 +628,6 @@ videoPlayer.addEventListener('loadedmetadata', () => {
 document.addEventListener('DOMContentLoaded', async () => {
   // Automatically load data when page opens
   await loadTulips();
-
-  try {
-    const dimsRes = await fetch('/api/video_dims');
-    if (dimsRes.ok) {
-      const dims = await dimsRes.json();
-      if (dims && dims.processed_width && dims.processed_height) {
-        videoWidth = dims.processed_width;
-        videoHeight = dims.processed_height;
-        setVideoDisplaySize(videoWidth, videoHeight);
-        console.log(`Init processed dims: ${videoWidth}x${videoHeight}`);
-      }
-    }
-  } catch (e) {
-    console.warn('Failed to init processed dims', e);
-  }
 });
   </script>
 </body>
