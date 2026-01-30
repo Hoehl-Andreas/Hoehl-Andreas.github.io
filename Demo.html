@@ -228,9 +228,9 @@
       showStatus('Loading data...', 'loading');
       
       try {
-        console.log("Fetching measurements.json...");
+        console.log("Fetching measurement.json...");
         const startTime = performance.now();
-        const res = await fetch('measurements.json?t=' + new Date().getTime());
+        const res = await fetch('measurement.json?t=' + new Date().getTime());
         console.log("Fetch completed in:", performance.now() - startTime, "ms");
         
         if (res.ok) {
@@ -265,7 +265,7 @@
           setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
           return; // Exit if successful
         } else {
-            throw new Error(`Failed to load measurements.json (Status: ${res.status})`);
+            throw new Error(`Failed to load measurement.json (Status: ${res.status})`);
         }
       } catch (dbErr) {
         console.error("Could not load local JSON file", dbErr);
