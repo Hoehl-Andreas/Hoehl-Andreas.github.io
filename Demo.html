@@ -223,54 +223,46 @@
 
     // Data load and rendering
     async function loadTulips() {
+      const statusEl = document.getElementById('processingStatus');
+      statusEl.style.display = 'block';
       showStatus('Loading data...', 'loading');
       
       try {
         console.log("Fetching measurements.json...");
+        const startTime = performance.now();
         const res = await fetch('measurements.json?t=' + new Date().getTime());
-        console.log("Fetch status:", res.status);
+        console.log("Fetch completed in:", performance.now() - startTime, "ms");
         
         if (res.ok) {
            const rawData = await res.json();
-           console.log("Data loaded, count:", rawData.length);
+           console.log("Data parsed, count:", rawData.length);
            
-           // Normalize data structure to ensure compatibility
-           tulips = rawData.map(item => ({
-               id: item.id || item.wave_id || 'Unknown',
-               duration: typeof item.duration === 'number' ? item.duration : 0,
-               first_detected_at: typeof item.first_detected_at === 'number' ? item.first_detected_at : (item.start_time || 0),
-               position: {
-                   x: item.position && typeof item.position.x === 'number' ? item.position.x : 0,
-                   y: item.position && typeof item.position.y === 'number' ? item.position.y : 0
-               }
-           }));
-
+           // Simple assignment without normalization for speed
+           tulips = rawData;
+           
+           console.log("Rendering data...");
+           const renderStart = performance.now();
            render(tulips);
+           console.log("Render completed in:", performance.now() - renderStart, "ms");
           
-          // CRITICAL FIX: Initialize display size so canvas exists even if no video file is uploaded yet
-          // Heuristic: If we don't have video dimensions, try to infer from data or use a larger default
           if (videoPlayer.videoWidth) {
               videoWidth = videoPlayer.videoWidth;
               videoHeight = videoPlayer.videoHeight;
           } else if (tulips.length > 0) {
-              // If data contains coordinates larger than default 640x480, expand the universe
-              // Use reduce to avoid stack overflow on large arrays
-              const maxX = tulips.reduce((max, t) => Math.max(max, t.position.x), 0);
-              const maxY = tulips.reduce((max, t) => Math.max(max, t.position.y), 0);
+              const maxX = Math.max(...tulips.map(t => t.position?.x || 0));
+              const maxY = Math.max(...tulips.map(t => t.position?.y || 0));
               
-              if (maxX > 640) videoWidth = Math.max(videoWidth, 1280); // Bump to at least 720p width
-              if (maxX > 1280) videoWidth = 1920; // Bump to 1080p width
+              if (maxX > 1280) videoWidth = 1920;
+              else if (maxX > 640) videoWidth = 1280;
               
-              if (maxY > 480) videoHeight = Math.max(videoHeight, 720);
               if (maxY > 720) videoHeight = 1080;
-              
-              console.log(`Inferred universe size from data: ${videoWidth}x${videoHeight} (Max items: ${maxX},${maxY})`);
+              else if (maxY > 480) videoHeight = 720;
           }
           setVideoDisplaySize(videoWidth, videoHeight);
           
           
-          showStatus('Data loaded from measurements.json', 'success');
-          setTimeout(() => { document.getElementById('processingStatus').style.display = 'none'; }, 2000);
+          showStatus('Data loaded successfully', 'success');
+          setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
           return; // Exit if successful
         } else {
             throw new Error(`Failed to load measurements.json (Status: ${res.status})`);
