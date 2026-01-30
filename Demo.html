@@ -322,7 +322,7 @@
           const showAllBtn = document.createElement("button");
           showAllBtn.id = "showAllFilteredBtn";
           showAllBtn.className = "btn-primary";
-          showAllBtn.textContent = "Show filtered waves";
+          showAllBtn.textContent = "Show All Filtered";
           showAllBtn.style.marginLeft = "10px";
           showAllBtn.onclick = () => showPositions(
               list.map(t => ({
@@ -364,6 +364,8 @@
     });
     
 
+    /*
+    // Commented out - clearDbBtn doesn't exist in HTML
     document.getElementById("clearDbBtn").addEventListener("click", async () => {
         if (!confirm("Are you sure you want to clear all detection data from the database?")) return;
         try {
@@ -380,6 +382,7 @@
             showStatus('Error: ' + e.message, 'error');
         }
     });
+    */
 
     // Object detection
     // const detectBtn = document.getElementById('detectBtn');
