@@ -620,7 +620,18 @@ videoPlayer.addEventListener('loadedmetadata', () => {
 
 // Add: initialize processed dims on page load
 document.addEventListener('DOMContentLoaded', async () => {
-  // Automatically load data when page opens
+  // Wait for video to be ready first
+  const video = document.getElementById('videoPlayer');
+  await ensureVideoReady(video);
+  
+  // Update dimensions from video
+  if (video.videoWidth && video.videoHeight) {
+    videoWidth = video.videoWidth;
+    videoHeight = video.videoHeight;
+    console.log(`Video loaded: ${videoWidth}x${videoHeight}`);
+  }
+  
+  // Now load the measurement data after video is ready
   await loadTulips();
 });
   </script>
