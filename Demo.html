@@ -47,7 +47,7 @@
       <!-- Filter and analysis section -->
       <div class="section">
         <h2 class="section-title">🔍 Filter & Analysis</h2>
-        <p>2. Choose the wave length and click on Button Show Waves.</p>
+        <p>3. Choose the wave length and click on Button Show Waves.</p>
         <br>
         <div class="controls" id="filterArea">
           <div class="control-group">
@@ -223,15 +223,19 @@
 
     // Data load and rendering
     async function loadTulips() {
+      console.log("loadTulips called");
       const statusEl = document.getElementById('processingStatus');
-      statusEl.style.display = 'block';
-      showStatus('Loading data...', 'loading');
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        showStatus('Loading data...', 'loading');
+      }
       
       try {
-        console.log("Fetching measurement.json...");
+        const url = 'measurement.json?t=' + new Date().getTime();
+        console.log("Fetching: " + url);
         const startTime = performance.now();
-        const res = await fetch('measurement.json?t=' + new Date().getTime());
-        console.log("Fetch completed in:", performance.now() - startTime, "ms");
+        const res = await fetch(url);
+        console.log("Fetch completed in:", performance.now() - startTime, "ms", "Status:", res.status);
         
         if (res.ok) {
            const rawData = await res.json();
@@ -260,16 +264,20 @@
           }
           setVideoDisplaySize(videoWidth, videoHeight);
           
-          
-          showStatus('Data loaded successfully', 'success');
-          setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
+          if (statusEl) {
+            showStatus('Data loaded successfully', 'success');
+            setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
+          }
           return; // Exit if successful
         } else {
+            console.error("Fetch failed with status:", res.status);
             throw new Error(`Failed to load measurement.json (Status: ${res.status})`);
         }
       } catch (dbErr) {
         console.error("Could not load local JSON file", dbErr);
-        showStatus('Error loading data: ' + dbErr.message, 'error');
+        if (statusEl) {
+          showStatus('Error loading data: ' + dbErr.message, 'error');
+        }
       }
     }
 
@@ -286,8 +294,12 @@
     }
 
     function render(list) {
+      console.log("render called with list length:", list.length);
       const tbody = document.querySelector("#tbl tbody");
-      if (!tbody) return;
+      if (!tbody) {
+        console.error("Could not find table body #tbl tbody");
+        return;
+      }
       
       let html = "";
       for (const t of list) {
@@ -308,6 +320,7 @@
         `;
       }
       tbody.innerHTML = html;
+      console.log("tbody.innerHTML set. Rows in table:", tbody.rows.length);
       
       // Remove existing "Show All Filtereds" button if present
       const existingBtn = document.getElementById("showAllFilteredBtn");
