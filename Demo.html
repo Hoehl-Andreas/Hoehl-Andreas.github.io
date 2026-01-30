@@ -323,7 +323,8 @@
           showAllBtn.id = "showAllFilteredBtn";
           showAllBtn.className = "btn-primary";
           showAllBtn.textContent = "Show All Filtered";
-          showAllBtn.style.marginLeft = "10px";
+          showAllBtn.style.marginBottom = "15px";
+          showAllBtn.style.display = "block";
           showAllBtn.onclick = () => showPositions(
               list.map(t => ({
                   id: t.id,
@@ -331,7 +332,7 @@
                   y: t.position.y
               }))
           );
-          document.getElementById("filterArea").appendChild(showAllBtn);
+          document.getElementById("filterArea").prepend(showAllBtn);
       }
       
       document.getElementById("count").textContent = 
@@ -515,7 +516,7 @@ function drawCornerReferenceDots() {
   const scaleY = videoDisplayHeight / videoHeight;
 
   const points = [
-    { x: 0, y: 0, label: `(0, 0)`, align: 'left', baseline: 'top', dx: 8, dy: 8 },
+    { x: 0, y: 0, label: `(0, 0)`, align: 'left', baseline: 'top', dx: 5, dy: 5 },
     { x: videoWidth, y: videoHeight, label: `(${videoWidth}, ${videoHeight})`, align: 'right', baseline: 'bottom', dx: -8, dy: -8 },
   ];
 
@@ -590,7 +591,7 @@ async function showPositions(positions) {
             
             // Draw red dot
             ctx.beginPath();
-            ctx.arc(scaledX, scaledY, 6, 0, 2 * Math.PI); // Slightly larger
+            ctx.arc(scaledX, scaledY, 3, 0, 2 * Math.PI); // Slightly larger
             ctx.fillStyle = '#ff0000';
             ctx.fill();
             // ctx.lineWidth = 2;
@@ -598,7 +599,7 @@ async function showPositions(positions) {
             // ctx.stroke();
             
             // Draw ID label
-            ctx.font = 'bold 14px Arial';
+            ctx.font = 'bold 12px Arial';
             ctx.fillStyle = '#ff0000';
             ctx.fillText(id, scaledX + 12, scaledY + 4);
         });
