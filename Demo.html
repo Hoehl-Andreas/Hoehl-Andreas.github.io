@@ -40,7 +40,7 @@
         -->
         <div id="processingStatus"></div>
         <div id="videoContainer">
-          <video id="videoPlayer" controls autoplay muted loop preload="metadata" src="Short_Caion_2025-12-30.mp4" style="width: 100%; height: auto; display: block;" controlslist="nodownload nofullscreen" disablePictureInPicture></video> 
+          <video id="videoPlayer" controls muted loop preload="none" src="Short_Caion_2025-12-30.mp4" style="width: 100%; height: auto; display: block;" controlslist="nodownload nofullscreen" disablePictureInPicture></video> 
         </div>
       </div>
 
@@ -620,20 +620,19 @@ videoPlayer.addEventListener('loadedmetadata', () => {
 
 // Add: initialize processed dims on page load
 document.addEventListener('DOMContentLoaded', async () => {
-  // Wait for video to be ready first
-  const video = document.getElementById('videoPlayer');
-  await ensureVideoReady(video);
-  
-  // Update dimensions from video
-  if (video.videoWidth && video.videoHeight) {
-    videoWidth = video.videoWidth;
-    videoHeight = video.videoHeight;
-    console.log(`Video loaded: ${videoWidth}x${videoHeight}`);
-  }
-  
-  // Now load the measurement data after video is ready
+  // Load measurement data FIRST (it's smaller and faster)
   await loadTulips();
+  
+  // Then prepare video (but don't force it to load yet)
+  const video = document.getElementById('videoPlayer');
+  
+  // Only load video metadata when user interacts
+  video.addEventListener('loadedmetadata', () => {
+    if (video.videoWidth && video.videoHeight) {
+      videoWidth = video.videoWidth;
+      videoHeight = video.videoHeight;
+      console.log(`Video loaded: ${videoWidth}x${videoHeight}`);
+      setVideoDisplaySize(videoWidth, videoHeight);
+    }
+  }, { once: true });
 });
-  </script>
-</body>
-</html>
