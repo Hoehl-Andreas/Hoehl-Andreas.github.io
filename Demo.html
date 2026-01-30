@@ -635,6 +635,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log(`Video loaded: ${videoWidth}x${videoHeight}`);
   }
   
+  // Force play the video
+  try {
+    await video.play();
+    console.log("Video autoplay started");
+  } catch (err) {
+    console.log("Autoplay blocked by browser:", err);
+    // Autoplay was blocked, user needs to click play
+  }
+  
   showStatus('Video loaded, now loading wave data...', 'loading');
   
   // Now load the measurement data after video is ready
