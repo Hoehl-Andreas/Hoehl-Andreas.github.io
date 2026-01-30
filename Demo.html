@@ -339,24 +339,19 @@
 
     function applyFilter() {
       const min = parseFloat(document.getElementById("minDuration").value);
-      const max = parseFloat(document.getElementById("maxDuration").value);
       const hasMin = !Number.isNaN(min);
-      const hasMax = !Number.isNaN(max);
       const filtered = tulips.filter(item => {
         const duration = Number(item.duration || 0);
         if (!isFinite(duration)) return false;
         if (hasMin && duration < min) return false;
-        if (hasMax && duration > max) return false;
         return true;
       });
       render(filtered);
     }
 
     document.getElementById("minDuration").addEventListener("input", applyFilter);
-    document.getElementById("maxDuration").addEventListener("input", applyFilter);
     document.getElementById("clearBtn").addEventListener("click", () => {
       document.getElementById("minDuration").value = "";
-      document.getElementById("maxDuration").value = "";
       render(tulips);
     });
     
