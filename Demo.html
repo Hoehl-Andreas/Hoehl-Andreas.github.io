@@ -47,6 +47,7 @@
       <!-- Filter and analysis section -->
       <div class="section">
         <h2 class="section-title">🔍 Filter & Analysis</h2>
+        <p>Choose the wave lengths and click on Show Waves</p>
         <div class="controls" id="filterArea">
           <div class="control-group">
             <label>Min duration (s):</label>
@@ -318,7 +319,7 @@
           const showAllBtn = document.createElement("button");
           showAllBtn.id = "showAllFilteredBtn";
           showAllBtn.className = "btn-primary";
-          showAllBtn.textContent = "Show All Filtered";
+          showAllBtn.textContent = "Show Waves";
           showAllBtn.style.marginBottom = "15px";
           showAllBtn.style.display = "block";
           showAllBtn.onclick = () => showPositions(
