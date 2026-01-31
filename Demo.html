@@ -339,8 +339,6 @@
           showAllBtn.id = "showAllFilteredBtn";
           showAllBtn.className = "btn-primary";
           showAllBtn.textContent = "Show Waves";
-          showAllBtn.style.marginBottom = "15px";
-          showAllBtn.style.display = "block";
           showAllBtn.onclick = () => showPositions(
               list.map(t => ({
                   id: t.id,
@@ -348,7 +346,13 @@
                   y: t.position?.y || 0
               }))
           );
-          document.getElementById("filterArea").prepend(showAllBtn);
+          
+          const clearBtn = document.getElementById("clearBtn");
+          if (clearBtn) {
+            clearBtn.parentNode.insertBefore(showAllBtn, clearBtn);
+          } else {
+            document.getElementById("filterArea").appendChild(showAllBtn);
+          }
       }
       
       const countEl = document.getElementById("count");
